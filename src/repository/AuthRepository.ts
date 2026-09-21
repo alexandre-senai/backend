@@ -6,7 +6,7 @@ import { bancoDados } from "../database/pool";
 import { UsuarioInterface } from "../interfaces/UsuarioInterface";
 import { BaseRepository } from "./BaseRepository";
 
-export class UsuarioRepository implements BaseRepository<UsuarioInterface>{
+export class UsuarioRepository extends BaseRepository<UsuarioInterface>{
 
 async  buscarUsuario() {
   const { rows } = await bancoDados.query("SELECT id_usuario FROM tb_usuario");
