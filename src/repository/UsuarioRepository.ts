@@ -2,60 +2,50 @@ import { IUsuario } from "../model/iUsuario";
 import { BaseRepository } from "./BaseRepository";
 
 export class UsuarioRepository extends BaseRepository<IUsuario> {
-
-  async buscarTodos(): Promise<IUsuario[]> {
-    return this.executarSql(
-      "SELECT id, email, nome FROM tb_usuario ORDER BY id"
+  
+  async validarNomeUsuario(nome: string): Promise<boolean | null> {
+    return await this.executarSqlUnico(
+      "SELECT EXISTS ( SELECT 1 FROM TB_USUARIO WHERE TX_NOME = $1 )",
+      [nome]
     );
   }
 
+
+
+  // ATIVIDADE
+  async buscarTodos(): Promise<IUsuario[]> {
+    return [];
+  }
   async buscarPorId(id: number): Promise<IUsuario | null> {
-    return this.executarSqlUnico(
-      "SELECT id, email, nome FROM tb_usuario WHERE id = $1",
-      [id]
-    );
+    return null;
   }
 
   async salvar(dados: Omit<IUsuario, "id">): Promise<IUsuario> {
-    const resultado = await this.executarSqlUnico<IUsuario>(
-      "INSERT INTO tb_usuario (email, senha, nome) VALUES ($1, $2, $3) RETURNING id, email, nome",
-      [dados.email, dados.senha, dados.nome]
+    const a = await this.executarSqlUnico<IUsuario>(
+      "INSERT INTO TB_USUARIO ( ID_USUARIO, TX_NOME, ) VALUES ( $1,$2,$3)",
+      [dados.id_usuario, dados.tx_email, dados.tx_nome],
     );
-    if (!resultado) throw new Error("Falha ao inserir usuário");
-    return resultado;
+
+
+    if(!a) throw new Error ("Nao existe");
+
+    return a;
   }
 
-  async atualizar(id: number, dados: Partial<Omit<IUsuario, "id">>): Promise<IUsuario | null> {
-    const campos: string[] = [];
-    const valores: unknown[] = [];
-    let idx = 1;
-
-    if (dados.email !== undefined) { campos.push(`email = $${idx++}`); valores.push(dados.email); }
-    if (dados.nome  !== undefined) { campos.push(`nome = $${idx++}`);  valores.push(dados.nome); }
-    if (dados.senha !== undefined) { campos.push(`senha = $${idx++}`); valores.push(dados.senha); }
-
-    if (campos.length === 0) return this.buscarPorId(id);
-
-    valores.push(id);
-    return this.executarSqlUnico<IUsuario>(
-      `UPDATE tb_usuario SET ${campos.join(", ")} WHERE id = $${idx} RETURNING id, email, nome`,
-      valores
-    );
+  async atualizar(
+    id: number,
+    dados: Partial<Omit<IUsuario, "id">>,
+  ): Promise<IUsuario | null> {
+    return null;
   }
+
 
   async deletar(id: number): Promise<boolean> {
-    const resultado = await this.executarSql<{ id: number }>(
-      "DELETE FROM tb_usuario WHERE id = $1 RETURNING id",
-      [id]
+    const a = await this.executarSql<IUsuario>(
+      "delete from tb_usuario",
+      [],
     );
-    return resultado.length > 0;
-  }
 
-  // Método extra — não existe na interface base
-  async buscarPorEmail(email: string): Promise<IUsuario | null> {
-    return this.executarSqlUnico(
-      "SELECT id, email, senha, nome FROM tb_usuario WHERE email = $1",
-      [email]
-    );
+    return a.length > 0;
   }
 }

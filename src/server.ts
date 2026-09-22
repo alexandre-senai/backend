@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import auth from "./routes/AuthRoute";
 import "dotenv/config";
+import UsuarioRoute from "./routes/UsuarioRoute";
 
 const app = express();
 const PORT = process.env.PORTA ?? 3000;
@@ -19,6 +20,7 @@ app.use(express.json());
 // PRIMEIRO CHAMADA DO LOCALHOST:300
 // TAMBEM CHAMADO DE ROTA PRINCIPAL
 app.use("/login", auth);
+app.use("/usuario", UsuarioRoute);
 
 app.listen(PORT, () => {
   console.log(`Servidor deu boa e rodando em http://localhost:${PORT}`);
